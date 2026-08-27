@@ -1,9 +1,9 @@
-- name: Install CFEngine (RHEL family)
-  ansible.builtin.dnf:
-    name: "{{ cfengine_package_name }}-*.el{{ ansible_facts['distribution_major_version'] }}"
-    state: present
+- name: Install CFEngine (RHEL family)  # noqa: command-instead-of-module
+  ansible.builtin.command: >
+    dnf install -y {{ cfengine_package_name }}-*.el{{ ansible_facts['distribution_major_version'] }}
   when: ansible_facts['os_family'] == 'RedHat'
   register: _cfengine_install_rhel
+  changed_when: "'Nothing to do' not in _cfengine_install_rhel.stdout"
   retries: 3
   delay: 15
   until: _cfengine_install_rhel is succeeded
