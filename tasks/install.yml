@@ -1,6 +1,6 @@
 - name: Install CFEngine (RHEL family)
   ansible.builtin.dnf:
-    name: "{{ cfengine_package_name }}"
+    name: "{{ cfengine_package_name }}-*.el{{ ansible_facts['distribution_major_version'] }}"
     state: present
   when: ansible_facts['os_family'] == 'RedHat'
   register: _cfengine_install_rhel
