@@ -1,0 +1,32 @@
+---
+galaxy_info:
+  role_name: cfengine
+  namespace: halif
+  author: halif
+  description: Install CFEngine Community and bootstrap it to a policy server
+  license: MIT
+  min_ansible_version: "2.14"
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy   # 22.04
+        - noble   # 24.04
+    - name: Debian
+      versions:
+        - bullseye  # 11
+        - bookworm  # 12
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+    - name: opensuse
+      versions:
+        - all
+
+  galaxy_tags:
+    - cfengine
+    - configmanagement
+    - automation
+
+dependencies: []

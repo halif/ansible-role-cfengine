@@ -1,0 +1,25 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Check that policy_server.dat was created by bootstrap
+      ansible.builtin.stat:
+        path: /var/cfengine/policy_server.dat
+      register: _policy_server_dat
+
+    - name: Assert bootstrap artifact exists
+      ansible.builtin.assert:
+        that:
+          - _policy_server_dat.stat.exists
+
+    # Имя systemd-юнита у CFEngine нестабильно между версиями/дистрибутивами
+    # (см. комментарий в tasks/bootstrap.yml), поэтому проверяем сам факт
+    # работы демона через процесс, а не через конкретный юнит.
+    - name: Check that cf-execd process is running
+      ansible.builtin.command: pgrep -f cf-execd
+      register: _cf_execd_check
+      changed_when: false
+      until: _cf_execd_check.rc == 0
+      retries: 12
+      delay: 5
