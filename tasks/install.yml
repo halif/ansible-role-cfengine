@@ -1,0 +1,18 @@
+---
+- name: Install CFEngine (RHEL family)
+  ansible.builtin.dnf:
+    name: "{{ cfengine_package_name }}"
+    state: present
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Install CFEngine (Debian family)
+  ansible.builtin.apt:
+    name: "{{ cfengine_package_name }}"
+    state: present
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Install CFEngine (SUSE family)
+  community.general.zypper:
+    name: "{{ cfengine_package_name }}"
+    state: present
+  when: ansible_facts['os_family'] == 'Suse'

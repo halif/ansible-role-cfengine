@@ -1,0 +1,9 @@
+---
+- name: Include repository and signing key setup
+  ansible.builtin.include_tasks: prereqs.yml
+
+- name: Include CFEngine installation
+  ansible.builtin.include_tasks: install.yml
+
+- name: Include CFEngine bootstrap
+  ansible.builtin.include_tasks: bootstrap.yml

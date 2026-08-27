@@ -1,0 +1,21 @@
+---
+- name: Validate that a policy server is configured
+  ansible.builtin.assert:
+    that:
+      - cfengine_policy_server | length > 0
+    fail_msg: >-
+      cfengine_policy_server must be set explicitly to the IP/hostname
+      of the policy server (hub) this host should bootstrap to.
+
+# policy_server.dat создаётся только процессом bootstrap (не пакетной
+# установкой) — это документированный CFEngine-артефакт, который
+# однозначно означает "хост уже забутстрапен". Bootstrap сам
+# устанавливает доверие с хабом и запускает демонов cf-execd,
+# cf-serverd, cf-monitord — отдельно управлять systemd-юнитом здесь не
+# нужно (и рискованно: имя юнита у CFEngine исторически нестабильно
+# и отличается между версиями пакета и дистрибутивами).
+- name: Bootstrap the CFEngine agent to the policy server  # noqa: command-instead-of-module
+  ansible.builtin.command: >
+    /var/cfengine/bin/cf-agent --bootstrap {{ cfengine_policy_server }}
+  args:
+    creates: /var/cfengine/policy_server.dat

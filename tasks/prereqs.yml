@@ -1,0 +1,83 @@
+---
+- name: Install prerequisite packages (RHEL family)
+  ansible.builtin.dnf:
+    name:
+      - curl
+      - gnupg2
+    state: present
+    allowerasing: true
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Install prerequisite packages (Debian family)
+  ansible.builtin.apt:
+    name:
+      - curl
+      - gnupg
+    state: present
+    update_cache: true
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Install prerequisite packages (SUSE family)
+  community.general.zypper:
+    name:
+      - curl
+      - gpg2
+    state: present
+  when: ansible_facts['os_family'] == 'Suse'
+
+# --- Debian/Ubuntu ---
+# apt_key устарел и убран из современного Ansible — актуальный способ:
+# скачать ключ, перевести его в бинарный keyring через gpg --dearmor,
+# сослаться на него через signed-by прямо в строке репозитория.
+- name: Download the CFEngine APT signing key (Debian family)
+  ansible.builtin.get_url:
+    url: "{{ cfengine_repo_gpg_key_url }}"
+    dest: /tmp/cfengine-gpg.key
+    mode: '0644'
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Dearmor the CFEngine APT signing key (Debian family)
+  ansible.builtin.command: >
+    gpg --dearmor --yes -o /usr/share/keyrings/cfengine-archive-keyring.gpg
+    /tmp/cfengine-gpg.key
+  args:
+    creates: /usr/share/keyrings/cfengine-archive-keyring.gpg
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Add the CFEngine APT repository (Debian family)
+  ansible.builtin.apt_repository:
+    repo: "{{ cfengine_apt_repo_line }}"
+    state: present
+  when: ansible_facts['os_family'] == 'Debian'
+
+# --- RHEL family ---
+- name: Import the CFEngine GPG key (RHEL family)
+  ansible.builtin.rpm_key:
+    key: "{{ cfengine_repo_gpg_key_url }}"
+    state: present
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Add the CFEngine yum repository (RHEL family)
+  ansible.builtin.yum_repository:
+    name: cfengine-repository
+    description: CFEngine
+    baseurl: "{{ cfengine_yum_baseurl }}"
+    gpgcheck: true
+    gpgkey: "{{ cfengine_repo_gpg_key_url }}"
+    enabled: true
+  when: ansible_facts['os_family'] == 'RedHat'
+
+# --- openSUSE ---
+- name: Import the CFEngine GPG key (SUSE family)
+  ansible.builtin.rpm_key:
+    key: "{{ cfengine_repo_gpg_key_url }}"
+    state: present
+  when: ansible_facts['os_family'] == 'Suse'
+
+- name: Add the CFEngine zypper repository (SUSE family)
+  community.general.zypper_repository:
+    name: cfengine-repository
+    repo: "{{ cfengine_zypper_repo_url }}"
+    state: present
+    auto_import_keys: true
+  when: ansible_facts['os_family'] == 'Suse'

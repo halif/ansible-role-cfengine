@@ -1,0 +1,15 @@
+---
+# ОБЯЗАТЕЛЬНО — IP или домен policy-сервера (хаба), к которому этот
+# хост бутстрапится. Для самого хаба это будет его собственный
+# маршрутизируемый IP (другие хосты должны уметь до него достучаться) —
+# единого разумного значения по умолчанию тут не существует.
+cfengine_policy_server: ""
+
+cfengine_package_name: "cfengine-community"
+
+cfengine_repo_gpg_key_url: "https://cfengine-package-repos.s3.amazonaws.com/pub/gpg.key"
+cfengine_apt_repo_line: >-
+  deb [signed-by=/usr/share/keyrings/cfengine-archive-keyring.gpg]
+  https://cfengine-package-repos.s3.amazonaws.com/pub/apt/packages stable main
+cfengine_yum_baseurl: "https://cfengine-package-repos.s3.amazonaws.com/pub/yum/$basearch"
+cfengine_zypper_repo_url: "https://cfengine-package-repos.s3.amazonaws.com/pub/yum/x86_64"
