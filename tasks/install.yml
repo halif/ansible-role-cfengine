@@ -1,9 +1,12 @@
----
 - name: Install CFEngine (RHEL family)
   ansible.builtin.dnf:
     name: "{{ cfengine_package_name }}"
     state: present
   when: ansible_facts['os_family'] == 'RedHat'
+  register: _cfengine_install_rhel
+  retries: 3
+  delay: 15
+  until: _cfengine_install_rhel is succeeded
 
 - name: Install CFEngine (Debian family)
   ansible.builtin.apt:

@@ -11,5 +11,5 @@ cfengine_repo_gpg_key_url: "https://cfengine-package-repos.s3.amazonaws.com/pub/
 cfengine_apt_repo_line: >-
   deb [signed-by=/usr/share/keyrings/cfengine-archive-keyring.gpg]
   https://cfengine-package-repos.s3.amazonaws.com/pub/apt/packages stable main
-cfengine_yum_baseurl: "https://amazonaws.com{{ ansible_distribution_major_version }}-{{ ansible_architecture }}"
+cfengine_yum_baseurl: "https://cfengine-package-repos.s3.amazonaws.com/pub/yum/$basearch"
 cfengine_zypper_repo_url: "https://cfengine-package-repos.s3.amazonaws.com/pub/yum/x86_64"
