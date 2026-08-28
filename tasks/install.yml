@@ -1,9 +1,36 @@
-- name: Install CFEngine (RHEL family)  # noqa: command-instead-of-module
-  ansible.builtin.command: >
-    dnf install -y {{ cfengine_package_name }}-*.el{{ ansible_facts['distribution_major_version'] }}
+---
+- name: List available CFEngine package builds (RHEL family)
+  ansible.builtin.command: dnf --showduplicates list {{ cfengine_package_name }}
+  register: _cfengine_available
+  changed_when: false
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Assert a build matching this host's EL version exists
+  ansible.builtin.assert:
+    that:
+      - _cfengine_available.stdout_lines
+        | select('search', '\\.el' ~ ansible_facts['distribution_major_version'] ~ '(\\.|\\s|$)')
+        | list | length > 0
+    fail_msg: >-
+      No CFEngine build found for EL{{ ansible_facts['distribution_major_version'] }}.
+      Available packages:
+      {{ _cfengine_available.stdout }}
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Select the build matching this host's EL version
+  ansible.builtin.set_fact:
+    _cfengine_matching_line: >-
+      {{ _cfengine_available.stdout_lines
+         | select('search', '\\.el' ~ ansible_facts['distribution_major_version'] ~ '(\\.|\\s|$)')
+         | list | first }}
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Install CFEngine (RHEL family)
+  ansible.builtin.dnf:
+    name: "{{ cfengine_package_name }}-{{ _cfengine_matching_line.split()[1] }}"
+    state: present
   when: ansible_facts['os_family'] == 'RedHat'
   register: _cfengine_install_rhel
-  changed_when: "'Nothing to do' not in _cfengine_install_rhel.stdout"
   retries: 3
   delay: 15
   until: _cfengine_install_rhel is succeeded
