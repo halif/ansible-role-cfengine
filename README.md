@@ -106,7 +106,3 @@ molecule test
 ## License
 
 MIT
-
-## Author
-
-[halif](https://github.com/halif)
